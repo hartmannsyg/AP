@@ -2,7 +2,7 @@
 
 The admin has hidden the flag as a song within this playlist, can you find it?
 
-# How to run
+# How to run (if you want to)
 
 ```
 docker compose up --build
@@ -12,6 +12,7 @@ docker compose up --build
 
 - The chromium takes a while to load
 - Try not to DoS by refreshing the page a billion times since the images and audio need to be retransmitted
+- The flag format is `rwandiCTF{([a-z_])+}` (i.e. `rwandiCTF{}` with lowercase letters and underscore only)
 
 ## Hints/Tips
 
