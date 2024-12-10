@@ -7,7 +7,7 @@
     <title>Ado Playlist</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
@@ -46,13 +46,14 @@
     </style>
 </head>
 <body>
+    <p style="margin:1rem">This website probably broke every copyright law. <a href="https://github.com/hartmannsyg/AP">Source Code</a></p>
     {% for track in playlist %}
     <div class="playlist-item">
         <img loading="lazy" src="{{ track.image }}" alt="{{ track.name }}">
         <div class="details">
             <h3>{{ track.name }}</h3>
             <audio controls>
-                <source src="{{ track.audio }}" type="audio/mpeg">
+                <source loading="lazy" src="{{ track.audio }}" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
         </div>

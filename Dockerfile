@@ -1,21 +1,27 @@
-# start by pulling the python image
-FROM python:3.11-alpine
+FROM zenika/alpine-chrome:with-puppeteer
 
-# copy the requirements file into the image
+
 COPY ./requirements.txt /app/requirements.txt
-
 # switch working directory
 WORKDIR /app
 
+USER root
+
+# Install python
 RUN apk update
-RUN apk add chromium
+RUN apk add --no-cache python3 py3-pip
+
+RUN python --version
+RUN pip --version
+
 # install the dependencies and packages in the requirements file
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --break-system-packages
+
 
 # copy every content from the local file to the image
 COPY . /app
 
-# configure the container to run in an executed manner
-ENTRYPOINT [ "python" ]
+RUN npm ci
 
-CMD ["app.py" ]
+# run
+CMD ["python3", "app.py"]

@@ -1,5 +1,5 @@
 services:
-  securecontent:
+  ado-playlist:
     privileged: false
     build: .
     ports:

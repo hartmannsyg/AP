@@ -5,9 +5,13 @@ The admin has hidden the flag as a song within this playlist, can you find it?
 # How to run
 
 ```
-docker build . -t ado-playlist
-docker run ado-playlist
+docker compose up --build
 ```
+
+## Notes
+
+- The chromium takes a while to load
+- Try not to DoS by refreshing the page a billion times since the images and audio need to be retransmitted
 
 ## Hints/Tips
 

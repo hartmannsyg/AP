@@ -1,11 +1,10 @@
-from flask import Flask, request, render_template, session
+from flask import Flask, request, render_template, render_template_string, session
 import subprocess, shlex
 from waitress import serve
 import uuid
 
 app = Flask(__name__)
 app.secret_key = 'REDACTED'
-ipport = "127.0.0.1:8000"
 
 songs = [
     {
@@ -58,10 +57,11 @@ songs = [
 added_songs = {}
 
 def show_playlist(uuid):
-    playlist = songs
+    songs_to_add = []
     if uuid in added_songs:
-        playlist += added_songs[uuid]
+        songs_to_add = added_songs[uuid]
     
+    playlist = songs + songs_to_add
     if request.remote_addr == "127.0.0.1":
         # adminbot can see flag
         playlist.append(
@@ -81,7 +81,7 @@ def index():
         user = str(uuid.uuid4())
         session['uuid'] = user
         added_songs[user] = []
-    return show_playlist(user)
+    return show_playlist(session['uuid'])
     
 @app.route('/users/<uuid>')
 def index_uuid(uuid):
@@ -105,6 +105,8 @@ def add_to_playlist():
 
     # Add to session playlist
     user = session['uuid']
+    if user not in added_songs:
+        del session['uid']
     added_songs[user].append(new_track)
 
     return f'new track with name={name}, image={image}, audio={audio} added'
@@ -119,28 +121,25 @@ def remove_from_playlist():
 
     # Remove from session playlist
     user = session['uuid']
+    if user not in added_songs:
+        del session['uid']
+    
     new_list = [song for song in added_songs[user] if song.name != name]
     added_songs[user] = new_list
 
-# @app.route('/send')
-# def send():
-#     return render_template_string('''
-#         <h1>Report a name</h1>
-#         <form action="/adminbot" method="post">
-#             <label for="url">Enter URL (must start with http://'''+ipport+'''/):</label><br>
-#             <input type="text" id="url" name="url" required><br><br>
-#             <input type="submit" value="Report it">
-#         </form>
-#     ''')
+@app.route('/sess')
+def send():
+    return render_template_string('<h1>'+session['uuid']+'</h1>')
 
 @app.route('/adminbot', methods=['POST'])
 def adminbot():
     if 'uuid' not in session:
         return 'No uuid!'
     
-    url = 'https://127.0.0.1:8000/users/' + session['uuid']
+    url = shlex.quote('http://127.0.0.1:8000/users/' + session['uuid'])
     print(url)
-    command = f"chromium --virtual-time-budget=10000 --no-sandbox --headless --disable-gpu --timeout=5000 {shlex.quote(url)}"
+    # command = f"chromium --virtual-time-budget=10000 --no-sandbox --headless --disable-gpu --timeout=10000 {url}"
+    command = f"node admin.js {url}"
     subprocess.Popen(command, shell=True)
     return "Admin bot will see your request soon"
 
