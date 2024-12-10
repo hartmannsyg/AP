@@ -1,7 +1,6 @@
-from flask import Flask, Response, request, url_for, render_template, session
+from flask import Flask, request, render_template, session
 import subprocess, shlex
 from waitress import serve
-import copy
 import uuid
 
 app = Flask(__name__)
@@ -10,14 +9,9 @@ ipport = "127.0.0.1:8000"
 
 songs = [
     {
-        "name": "Ussewa (うっせぇわ)",
-        "image": "/static/img/ussewa.jpg",
-        "audio": "/static/audio/ussewa.mp3"
-    },
-    {
-        "name": "Show (唱)",
-        "image": "/static/img/show.jpg",
-        "audio": "/static/audio/show.mp3"
+        "name": "Aishite Aishite Aishite (愛して愛して愛して)",
+        "image": "/static/img/utaite.jpg",
+        "audio": "/static/audio/aishite.mp3"
     },
     {
         "name": "New Genesis / 新時代",
@@ -25,14 +19,14 @@ songs = [
         "audio": "/static/audio/new_genesis.mp3"
     },
     {
-        "name": "Readymade (レディメイド)",
-        "image": "/static/img/readymade.jpg",
-        "audio": "/static/audio/readymade.mp3"
-    },
-    {
         "name": "Odo (踊)",
         "image": "/static/img/odo.jpg",
         "audio": "/static/audio/odo.mp3"
+    },
+    {
+        "name": "Readymade (レディメイド)",
+        "image": "/static/img/readymade.jpg",
+        "audio": "/static/audio/readymade.mp3"
     },
     {
         "name": "RuLe (ルル)",
@@ -40,26 +34,34 @@ songs = [
         "audio": "/static/audio/rule.mp3"
     },
     {
-        "name": "Aishite Aishite Aishite (愛して愛して愛して)",
-        "image": "/static/img/utaite.jpg",
-        "audio": "/static/audio/aishite.mp3"
+        "name": "Shoka",
+        "image": "/static/img/shoka.jpg",
+        "audio": "/static/audio/shoka.mp3"
+    },    
+    {
+        "name": "Show (唱)",
+        "image": "/static/img/show.jpg",
+        "audio": "/static/audio/show.mp3"
+    },
+    {
+        "name": "Ussewa (うっせぇわ)",
+        "image": "/static/img/ussewa.jpg",
+        "audio": "/static/audio/ussewa.mp3"
     },
     {
         "name": "きらきら星",
         "image": "/static/img/twinkle.png",
         "audio": "/static/audio/twinkle.mp3"
     },
-    {
-        "name": "Shoka",
-        "image": "/static/img/shoka.jpg",
-        "audio": "/static/audio/shoka.mp3"
-    }    
 ]
 
 added_songs = {}
 
 def show_playlist(uuid):
-    playlist = songs + added_songs[uuid]
+    playlist = songs
+    if uuid in added_songs:
+        playlist += added_songs[uuid]
+    
     if request.remote_addr == "127.0.0.1":
         # adminbot can see flag
         playlist.append(
@@ -76,7 +78,7 @@ def show_playlist(uuid):
 @app.route('/')
 def index():
     if 'uuid' not in session:
-        user = uuid.uuid4()
+        user = str(uuid.uuid4())
         session['uuid'] = user
         added_songs[user] = []
     return show_playlist(user)
@@ -136,8 +138,8 @@ def adminbot():
     if 'uuid' not in session:
         return 'No uuid!'
     
-    user = session['uuid']
-    
+    url = 'https://127.0.0.1:8000/users/' + session['uuid']
+    print(url)
     command = f"chromium --virtual-time-budget=10000 --no-sandbox --headless --disable-gpu --timeout=5000 {shlex.quote(url)}"
     subprocess.Popen(command, shell=True)
     return "Admin bot will see your request soon"
